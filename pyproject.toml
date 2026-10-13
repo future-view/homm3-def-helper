@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[project]
+name = "homm3-def-helper"
+version = "1.0.0"
+description = "HoMM3 / VCMI .def animation sprite file unpacker and repacker"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "Pillow>=10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/future-view/homm3-def-helper"
+Source = "https://github.com/future-view/homm3-def-helper"
+
+# ═══════════════════════════════════════════════════════════════════
+#  可选依赖分组
+#  安装方式:
+#    pip install -e ".[dev]"    # 项目 + 开发工具
+#    pip install -e .           # 仅项目运行时
+# ═══════════════════════════════════════════════════════════════════
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.9.0",
+    "pre-commit>=4.0",
+    "poethepoet>=0.32",
+]
+
+# ═══════════════════════════════════════════════════════════════════
+#  Ruff — 代码检查与格式化
+# ═══════════════════════════════════════════════════════════════════
+
+[tool.ruff]
+target-version = "py310"
+include = ["*.py"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle 错误
+    "W",    # pycodestyle 警告
+    "F",    # pyflakes 逻辑问题
+    "I",    # isort import 排序
+    "UP",   # pyupgrade 旧语法升级
+    "N",    # pep8-naming 命名规范
+]
+ignore = [
+    "E501",   # 行长度 (单文件工具，长行可读性优先)
+    "D",      # pydocstyle 文档
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# ═══════════════════════════════════════════════════════════════════
+#  Poe the Poet — 任务运行器 (类似 npm scripts)
+#  用法: poe <task>           # 运行任务
+#        poe list             # 列出所有可用任务
+#  安装: pip install -e ".[dev]"
+# ═══════════════════════════════════════════════════════════════════
+
+[tool.poe.tasks]
+# ── 代码质量 ──────────────────────────────────────────────────────
+lint = "ruff check {args}"
+fix = "ruff check --fix {args}"
+format = "ruff format {args}"
+format-check = "ruff format --check {args}"
+check = [{ref = "lint"}, {ref = "format-check"}]
+
+# ── 安装与初始化 ──────────────────────────────────────────────────
+install = "pip install -e \".[dev]\""
+install-hooks = "pre-commit install"
+req = "pip install -r requirements.txt"
+
+# ── 信息查看 ──────────────────────────────────────────────────────
+info = "python main.py info {args}"
+
+# ── 解包 ──────────────────────────────────────────────────────────
+unpack = "python main.py unpack {args}"
+unpack-png = "python main.py unpack --mode=png {args}"
+unpack-bmp = "python main.py unpack --mode=bmp {args}"
+unpack-recursive = "python main.py unpack --recursive --mode=png {args}"
+unpack-parallel = "python main.py unpack --recursive --parallel --mode=png {args}"
+
+# ── 打包 ──────────────────────────────────────────────────────────
+repack = "python main.py repack {args}"
+repack-dither = "python main.py repack --dither {args}"
+repack-recursive = "python main.py repack --recursive --parallel {args}"
+
+# ── 验证 ──────────────────────────────────────────────────────────
+valid = "python main.py valid --mode=png {args}"
+valid-keep = "python main.py valid --mode=png --keep {args}"
+
+# ── 批量测试 ──────────────────────────────────────────────────────
+test = "python main.py test --mode=png {args}"
+test-sample = "python main.py test --recursive --sample=5 --mode=png --seed=42 {args}"
+test-parallel = "python main.py test --recursive --parallel --mode=png {args}"
+
+# ── 清理 ──────────────────────────────────────────────────────────
+clean-unpack = "python main.py clean-unpack {args}"
+clean-unpack-dry = "python main.py clean-unpack --dry-run {args}"
+clean-def = "python main.py clean-def {args}"
+clean-def-dry = "python main.py clean-def --dry-run {args}"
